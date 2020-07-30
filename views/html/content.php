@@ -1,0 +1,1 @@
+<div id="site">	<?php echo $header; ?>	<div <?php echo $attributes; ?>>		<?php echo $content; ?>	</div></div>

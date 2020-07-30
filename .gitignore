@@ -1,0 +1,9 @@
+.environment
+.buildpath
+.project
+.settings
+node_modules
+resources/logs/*
+resources/images/*
+*.map
+package-lock.json

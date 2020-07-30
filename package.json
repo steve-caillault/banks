@@ -1,0 +1,18 @@
+{
+  "name": "Gestionnaire_bancaire",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "update-static": "gulp update-styles",
+    "watch": "gulp watch",
+    "production": "gulp update-static --env production"
+  },
+  "author": "Stève Caillault",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^3.1.0",
+	"gulp-sourcemaps": "^2.6.4"
+  }
+}

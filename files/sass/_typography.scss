@@ -1,0 +1,131 @@
+*,
+*:before, 
+*:after {
+	box-sizing: border-box;
+	font-family: arial !important; 	
+} 
+
+
+html {
+	font-size: 10px; // 62.5%; // 10px
+}
+
+body {
+	font-size: 1.6rem;	
+}
+	
+a {
+	text-decoration: none;
+	color: #333;
+	transition: color 0.25s, background 0.25s;
+	&:hover {
+		text-decoration: underline;
+	}	
+}
+
+p {
+	margin: 0 0 2rem;	
+}
+
+ul {
+	li {
+		list-style-type: none;
+	}	
+}
+
+h1 {
+	margin: 0 0 2rem;
+	font-size: 2rem;
+	padding: 0 1.5rem 0.75rem;
+	
+	@include tablet {
+		font-size: 2.4rem;
+	}
+	@include desktop {
+		font-size: 3.2rem;
+		padding: 0 3rem 1.5rem;
+	}
+	
+	border-bottom: 0.2rem solid #333;
+	color: #333;
+}
+
+h2 {
+	margin: 0 0 2rem;	
+	
+	border-bottom: 0.1rem dotted #333;
+	display: inline-block;
+	
+	padding: 0 1.5rem 0.75rem;
+	font-size: 1.5rem;
+	
+	@include tablet {
+		font-size: 1.8rem;
+	}
+	
+	@include desktop {
+		padding: 0 3rem 1rem;
+	}
+	
+	/*padding: 0 3rem 1rem;
+	font-size: 1.8rem;*/
+}
+
+div#site {
+	margin: auto;
+	
+	width: 100%;
+	padding: 0 $site-padding-phone;
+	
+	
+	@include tablet {
+		width: $width-tablet;
+		padding: 0 $site-padding-tablet;
+	}
+	
+	@include desktop {
+		width: $width-desktop;
+		padding: 0 $site-padding-desktop;
+	}
+
+	@include desktop-large {
+		width: $width-desktop-large;
+	}	
+
+	@include tv {
+		width: $width-tv;
+	}	
+}
+
+div#main-content {
+	margin: 0 auto;	
+
+	div.content-left,
+	div.content-right {
+		display: inline-block;
+		vertical-align: top;
+	}
+	div.content-left {
+		width: 100%;
+		margin: 0 auto 2rem; 
+		@include desktop-large {	
+			width: 25rem;
+			position: fixed;
+		}
+	}
+	div.content-right {
+		width: 100%;
+		@include desktop {
+			/*width: $width-desktop - 27rem - 2 * $site-padding-desktop;
+			margin-left: 27rem;*/
+		}
+		@include desktop-large {
+			width: $width-desktop-large - 27rem - 2 * $site-padding-desktop;
+			margin-left: 27rem;
+		}
+		@include tv {
+			width: $width-tv - 27rem - 2 * $site-padding-desktop;
+		}
+		margin-bottom: 2rem;
+	}
+}

@@ -1,0 +1,49 @@
+form {
+	div.form-input {
+		clear: both;
+		margin-bottom: 1rem;	
+		label, input, textarea, select, p.error {
+			font-size: 1.4rem;	
+		}
+		label {
+			width: 18rem;
+			padding: .5rem .5rem .5rem 0;
+			display: inline-block;	
+			cursor: pointer;
+			&:after {
+				content: " : ";	
+			}
+		}
+		input, textarea, select {
+			padding: .5rem;
+			display: inline-block;	
+			border: 0.1em solid lighten(#333, 10%);
+			transition: border-color 0.25s;
+			&:hover {
+				border-color: darken(#333, 10%);
+				cursor: pointer;
+			}
+		}
+		select {
+			padding: 0.5rem 0;	
+		}
+		p.error {
+			color: red;
+			margin: 0.5rem 0;
+		}
+	}
+
+	input[type="submit"] {
+		background: #333;
+		color: #fff;
+		border: 0.1rem solid #000;
+		border-radius: 0.3rem;
+		padding: 0.5rem 2rem;
+		transition: text-shadow 0.25s, background 0.25s;
+		&:hover {
+			text-shadow: 0 0 0.3rem darken(#fff, 10%);
+			cursor: pointer;
+			background: darken(#333, 10%);
+		}
+	}	
+}

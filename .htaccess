@@ -1,0 +1,6 @@
+SetEnv BEYOND_PHP_ENVIRONMENT DEVELOPMENT
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]			# Redirige toutes les requêtes vers index.php
