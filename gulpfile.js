@@ -27,8 +27,9 @@ if(environmentsAllowed.indexOf(environment) == -1) {
 	throw 'Environnement incorrect.';
 }
  
+// Gestion des styles
 gulp.task('update-styles', function() {
-	var object = gulp.src('./files/sass/**/*.scss'),
+	var object = gulp.src('./resources/sass/**/*.scss'),
 		options = (compressFiles) ? { outputStyle: 'compressed' } : {}
 	;
 	
@@ -42,11 +43,13 @@ gulp.task('update-styles', function() {
 		object = object.pipe(sourcemaps.write('./maps'));
 	}
 	
-	object.pipe(gulp.dest('./files/styles'));
-});
- 
-gulp.task('watch', function() {
-	gulp.watch('./files/sass/**/*.scss', [ 'update-styles' ]);
+	object = object.pipe(gulp.dest('./resources/styles'));
+	
+	return object;
 });
 
-gulp.task('update-static', [ 'update-styles' ]);
+gulp.task('watch', function() {
+	gulp.watch('./resources/sass/**/*.scss', gulp.series('update-styles'));
+});
+
+gulp.task('update-static', gulp.series('update-styles'));
