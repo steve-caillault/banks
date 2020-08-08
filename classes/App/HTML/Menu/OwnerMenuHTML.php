@@ -55,6 +55,8 @@ class OwnerMenuHTML extends Instanciable {
 		
 		if($owner !== NULL)
 		{
+			$countAccounts = count($owner->accounts());
+			
 			$menu->addItem('owner-edit', [
 				'label' => 'Modifier le propriétaire',
 				'href' 	=> $owner->editUri(),
@@ -70,17 +72,24 @@ class OwnerMenuHTML extends Instanciable {
 				'href'	=> $owner->accountsUri(),
 				'class'	=> ($currentRoute == 'owners.accounts.list') ? 'selected' : '',
 				'title'	=> strtr('Consulter la liste des comptes de :name.', [ ':name' => $owner->fullName(), ]),
-			])->addItem('owner-evolution', [
-				'label'	=> 'Evolution des comptes',
-				'href'	=> $owner->evolutionUri(),
-				'class'	=> ($currentRoute == 'owners.evolution') ? 'selected' : '',
-				'title'	=> strtr('Consulter l\'évolution des comptes de :name.', [ ':name' => $owner->fullName(), ]),
-			])->addItem('owner-comparison', [
-				'label' => 'Comparaison des années',
-				'href' => $owner->comparisonUri(),
-				'class' => ($currentRoute == 'owners.comparison') ? 'selected' : '',
-				'title'	=> strtr('Consulter la comparaison des années des comptes de :name.', [ ':name' => $owner->fullName(), ]),
-			])->addItem('owner-budgets', [
+			]);
+			
+			if($countAccounts > 0)
+			{
+				$menu->addItem('owner-evolution', [
+					'label'	=> 'Evolution des comptes',
+					'href'	=> $owner->evolutionUri(),
+					'class'	=> ($currentRoute == 'owners.evolution') ? 'selected' : '',
+					'title'	=> strtr('Consulter l\'évolution des comptes de :name.', [ ':name' => $owner->fullName(), ]),
+				])->addItem('owner-comparison', [
+					'label' => 'Comparaison des années',
+					'href' => $owner->comparisonUri(),
+					'class' => ($currentRoute == 'owners.comparison') ? 'selected' : '',
+					'title'	=> strtr('Consulter la comparaison des années des comptes de :name.', [ ':name' => $owner->fullName(), ]),
+				]);
+			}
+			
+			$menu->addItem('owner-budgets', [
 				'label' => 'Gestion des bugdets',
 				'href' => $owner->budgetListUri(),
 				'class'	=> ($currentRoute == 'owners.budgets.list') ? 'selected' : '',

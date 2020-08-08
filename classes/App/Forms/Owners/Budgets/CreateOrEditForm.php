@@ -182,8 +182,6 @@ class CreateOrEditForm extends ProcessForm
 	 */
 	protected function _onValid() : bool
 	{
-		$data = $this->_data;
-		
 		$budget = Budget::factory(array_merge($this->_data, [
 			'id' => ($this->_budget === NULL) ? NULL : $this->_budget->id,
 			'owner_id' => $this->_owner->id,

@@ -8,7 +8,7 @@ namespace App\Controllers\Owners;
 
 use App\Controllers\HTML\ContentController;
 /***/
-use App\Owner;
+use App\{ Owner, User };
 use App\Forms\Owners\CreateOrEditForm as Form;
 use App\HTML\Menu\OwnerMenuHTML;
 use App\HTML\Menu\MenuHTML;
@@ -27,6 +27,8 @@ class CreateOrEditController extends ContentController {
 	{
 		parent::before();
 		
+		$user = User::current();
+		
 		// Fil d'Ariane
 		$this->_site_breadcrumb->add([
 			'href' => Owner::listUri(),
@@ -39,9 +41,9 @@ class CreateOrEditController extends ContentController {
 		if($id !== NULL)
 		{
 			$this->_owner = Owner::factory($id);
-			if($this->_owner === NULL)
+			if($this->_owner === NULL OR $this->_owner->user_id != $user->id)
 			{
-				exception('Le propriétaire n\'existe pas.');
+				exception('Le propriétaire n\'existe pas.', 404);
 			}
 			
 			// Fil d'ariane

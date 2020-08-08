@@ -71,8 +71,8 @@ class BudgetMenuHTML extends Instanciable {
 		
 		$menu->addItem('budget-add', [
 			'label' => 'Créer un budget',
-			'href' => $this->_owner->addBudgetUri(),
-			'class'	=> ($this->_year === NULL AND $currentRoute == 'owners.budgets.add') ? 'selected' : NULL,
+			'href' => $this->_owner->initBudgetUri(),
+			'class'	=> ($currentRoute == 'owners.budgets.init') ? 'selected' : NULL,
 			'title' => 'Démarrer la création d\'un budget.',
 		]);
 		

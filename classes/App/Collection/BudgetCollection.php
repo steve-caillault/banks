@@ -6,6 +6,9 @@
 
 namespace App\Collection;
 
+// use Root\DB;
+// use Root\Database\Query\Builder\Select as QueryBuilder;
+/***/
 use App\{ Owner, Budget };
 
 class BudgetCollection extends Collection {
@@ -61,6 +64,24 @@ class BudgetCollection extends Collection {
 		$this->_query->orderBy($this->_table . '.year', $direction);
 		return $this;
 	}
+	
+	/************************************************************/
+	
+	/**
+     * Retourne la requête de calcul du nombre de résultats
+     * @return QueryBuilder
+     */
+   /* protected function _countResultsQuery() : QueryBuilder
+    {
+		parent::_countResultsQuery();
+		
+    	$query = clone $this->_query;
+    	
+    	return $query->select([
+    		DB::expression('COUNT(*) AS nb'),
+			DB::expression($this->_table . '.year'),
+    	]);
+    }*/
 	
 	/************************************************************/
 	

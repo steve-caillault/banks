@@ -60,7 +60,7 @@ class AccountMenuHTML extends Instanciable {
 		if($this->_account !== NULL)
 		{
 			$accountName = $this->_account->name;
-			$owner = $this->_account->owner();
+			$this->_account->owner();
 			
 			$menu->addItem('account-operations-list', [
 				'label' => 'Liste des opérations',

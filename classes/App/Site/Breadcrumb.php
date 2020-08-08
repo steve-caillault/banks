@@ -6,47 +6,30 @@
 
 namespace App\Site;
 
-use Root\Arr;
-use Root\HTML;
-use Root\Instanciable;
-use Root\Route;
-use Root\View;
+use Root\{ HTML, Instanciable, Route, View };
 
 class Breadcrumb extends Instanciable {
-	
-	/**
-	 * Instance unique pour le site
-	 * @var self
-	 */
-	private static $_instance = NULL;
 	
 	/**
 	 * Eléments du fil d'Ariane
 	 * @var array
 	 */
-	private $_items = [];
+	private array $_items = [];
 	
 	/********************************************/
 	
 	/* CONSTRUCTEUR / INSTANCIATION */
 	
 	/**
-	 * Retourne l'instance unique du fil d'ariane
-	 * @return self
+	 * Constructeur
 	 */
-	public static function instance() : self
+	protected function __construct()
 	{
-		if(static::$_instance === NULL)
-		{
-			$breadcrumb = new static;
-			$breadcrumb->add([
-				'href'	=> Route::retrieve('home')->uri(),
-				'name'	=> 'Accueil',
-				'alt'	=> 'Revenir à  la page d\'accueil.',
-			]);
-			static::$_instance = $breadcrumb;
-		}
-		return static::$_instance;
+		$this->add([
+			'href'	=> Route::retrieve('home')->uri(),
+			'name'	=> 'Accueil',
+			'alt'	=> 'Revenir à la page d\'accueil.',
+		]);
 	}
 	
 	/********************************************/
@@ -58,7 +41,7 @@ class Breadcrumb extends Instanciable {
 	 */
 	public function add(array $params) : self
 	{
-		$uri = Arr::get($params, 'href');
+		$uri = getArray($params, 'href');
 		
 		$title = $params['name'];
 	
@@ -69,11 +52,9 @@ class Breadcrumb extends Instanciable {
 		else
 		{
 			$item = HTML::anchor($uri, $title, [
-				'title' => Arr::get($params, 'alt'),
+				'title' => getArray($params, 'alt'),
 			]);
 		}
-		
-		
 		
 		$this->_items[] = $item; 
 		

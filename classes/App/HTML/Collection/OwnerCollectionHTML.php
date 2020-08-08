@@ -6,9 +6,10 @@
 
 namespace App\HTML\Collection;
 
-use App\{ Model, Owner };
+use Root\HTML;
+/***/
+use App\{ Model, Owner, User };
 use App\Collection\{ Collection, OwnerCollection };
-use Root\{ HTML };
 
 class OwnerCollectionHTML extends CollectionHTML {
 	
@@ -34,7 +35,8 @@ class OwnerCollectionHTML extends CollectionHTML {
 	 */
 	protected function _initCollection() : Collection
 	{
-		return OwnerCollection::factory();
+		$user = User::current();
+		return OwnerCollection::factory()->user($user);
 	}
 	
 	/*****************************************************************/

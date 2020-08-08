@@ -84,7 +84,7 @@ class CreateOrEditController extends Controller {
 		if($this->_budget === NULL)
 		{
 			$this->_site_breadcrumb->add([
-				'href' => $this->_owner->addBudgetUri($this->_year),
+				'href' => $this->_owner->initBudgetUri(),
 				'name' => 'Création',
 				'alt' => 'Ajout d\'un budget.',
 			]);

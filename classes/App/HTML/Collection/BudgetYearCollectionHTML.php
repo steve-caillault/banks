@@ -6,7 +6,7 @@
 
 namespace App\HTML\Collection;
 
-use Root\{ Arr, HTML };
+use Root\{ Arr, HTML, DB };
 use App\{ Model, Budget, Owner };
 use App\Collection\{ Collection, BudgetCollection };
 
@@ -59,9 +59,11 @@ class BudgetYearCollectionHTML extends CollectionHTML {
 	{
 		$table = Budget::$table;
 		
+		$fieldYear = DB::expression($table . '.year')->getValue();
+		
 		return BudgetCollection::factory()->select([
 			$table . '.year',
-		])->owner($this->_owner)->groupBy($table . '.year');
+		])->owner($this->_owner)->groupBy($fieldYear);
 	}
 	
 	/*****************************************************************/
@@ -97,7 +99,7 @@ class BudgetYearCollectionHTML extends CollectionHTML {
 	 */
 	protected function noItemSentence() : string
 	{
-		$anchor = HTML::anchor($this->_owner->addBudgetUri(), 'ici', [
+		$anchor = HTML::anchor($this->_owner->initBudgetUri(), 'ici', [
 			'title' => 'Démarrer la création d\'un budget.',
 		]);
 		

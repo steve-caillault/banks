@@ -363,7 +363,7 @@ abstract class ProcessForm extends Instanciable
 	protected function _inputSelect(string $name) : string
 	{
 		$value = Arr::get($this->_data, $name);
-		$options = $this->{ '_selectOptions' }($name);
+		$options = $this->_selectOptions($name);
 		
 		if(count($options) == 0)
 		{

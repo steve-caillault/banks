@@ -7,10 +7,7 @@
 
 namespace App\Site;
 
-use Root\Arr;
-use Root\HTML;
-use Root\Instanciable;
-use Root\View;
+use Root\{ HTML, Instanciable, View };
 
 class Meta extends Instanciable
 {
@@ -18,13 +15,7 @@ class Meta extends Instanciable
 	 * Liste des balises meta
 	 * @var array
 	 */
-	private $_metas = [];
-	
-	/**
-	 * Instance 
-	 * @var self
-	 */
-	private static $_instance = NULL;
+	private array $_metas = [];
 	
 	/****************************************************************************************************************************/
 	
@@ -41,19 +32,6 @@ class Meta extends Instanciable
 			$this->set($params);
 		}
 	}
-
-	/**
-	 * Retourne une instance 
-	 * @return Meta
-	 */
-	public static function instance() : self
-	{
-		if(static::$_instance === NULL)
-		{
-			static::$_instance = static::factory();
-		}
-		return static::$_instance;
-	}
 	
 	/****************************************************************************************************************************/
 	
@@ -67,12 +45,12 @@ class Meta extends Instanciable
 	public function set(array $params) : self
 	{
 		$update = FALSE; // Si une balise a été mis à jour, on ne la crée pas
-		if($name = Arr::get($params, 'name'))
+		if($name = getArray($params, 'name'))
 		{
 			// On parcours la liste des balises pour vérifier s'il ne faut modifier une balise
 			foreach($this->_metas as $key => $meta)
 			{
-				if(Arr::get($meta, 'name') == $name)
+				if(getArray($meta, 'name') == $name)
 				{
 					$this->_metas[$key] = $params;
 					$update = TRUE;

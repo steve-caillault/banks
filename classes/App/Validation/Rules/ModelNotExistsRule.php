@@ -12,7 +12,7 @@ class ModelNotExistsRule extends ModelExistingRule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'Un modèle existe déjà en base de données.';
+	protected string $_error_message = 'Un modèle existe déjà en base de données.';
 	
 	/********************************************************************************/
 	

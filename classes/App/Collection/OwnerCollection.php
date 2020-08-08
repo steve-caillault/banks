@@ -7,7 +7,8 @@
 namespace App\Collection;
 
 use Root\DB;
-use App\Owner;
+/***/
+use App\{ Owner, User };
 
 class OwnerCollection extends Collection {
 	
@@ -18,6 +19,25 @@ class OwnerCollection extends Collection {
 	 * @var string
 	 */
 	protected $_model_class = Owner::class;
+	
+	/*****************************************************************************/
+	
+	/* FILTRES */
+	
+	/**
+	 * Filtre les propriétaires des comptes de l'utilisateur
+	 * @param User $user Utilisateur
+	 * @return self
+	 */
+	public function user(User $user) : self
+	{
+		$this->_query->where($this->_table . '.user_id', '=', $user->id);
+		return $this;
+	}
+	
+	/*****************************************************************************/
+	
+	/* TRIS */
 	
 	/**
 	 * Tri par nom
@@ -34,5 +54,7 @@ class OwnerCollection extends Collection {
 		$this->_query->orderBy(DB::expression($field), $direction);
 		return $this;
 	}
+	
+	/*****************************************************************************/
 	
 }

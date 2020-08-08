@@ -19,7 +19,7 @@ abstract class BodyController extends HTMLController
      * Vue de base à utiliser
      * @var string
      */
-    protected $_templatePath		= 'html/body';
+    protected string $_template_path = 'html/body';
    
     /**
      * Titre de la balise title

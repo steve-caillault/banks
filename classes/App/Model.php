@@ -185,12 +185,13 @@ abstract class Model
 	 */
 	public static function columns() : array
 	{
-		if(! Arr::get(static::$_columns, static::$table))
+		if(! getArray(static::$_columns, static::$table))
 		{
 			$data = [];
 			$prefix = static::$table . '.'; // Peut servir lorsqu'il y a des jointures
 			$defaultValues = static::defaultValues();
-			foreach($defaultValues as $key => $value)
+			$keys = array_keys($defaultValues);
+			foreach($keys as $key)
 			{
 				$data[] = $prefix . $key;
 			}
@@ -410,7 +411,7 @@ abstract class Model
 			{
 				$create = TRUE;
 			}
-			$success = (($select === NULL) ? $this->create() : $this->update());
+			$success = (($model === NULL) ? $this->create() : $this->update());
 		}
 		// La clé primaire est un champs auto-incrément
 		elseif(static::$_autoincrement === TRUE)

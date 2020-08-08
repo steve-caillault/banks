@@ -7,7 +7,7 @@
 namespace App\Forms\Owners;
 
 use App\Forms\ProcessForm;
-use App\Owner;
+use App\{ User, Owner };
 /***/
 use Root\Arr;
 use Root\Validation;
@@ -123,8 +123,11 @@ class CreateOrEditForm extends ProcessForm
 	 */
 	protected function _onValid() : bool
 	{
+		$user = User::current();
+		
 		$owner = Owner::factory(array_merge($this->_data, [
 			'id' => ($this->_owner === NULL) ? NULL : $this->_owner->id,
+			'user_id' => $user->id,
 		]));
 		return $owner->save();
 	}

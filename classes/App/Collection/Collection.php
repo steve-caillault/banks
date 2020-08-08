@@ -8,7 +8,7 @@ namespace App\Collection;
 
 use ArrayObject;
 use Root\Database\Query\Builder\Select as QueryBuilder;
-use Root\{ DB, Arr, Str };
+use Root\{ DB, Str };
 use App\Model;
 
 abstract class Collection extends ArrayObject
@@ -253,32 +253,38 @@ abstract class Collection extends ArrayObject
     
     /* EXECUTION DES REQUÊTES */
     
-    /**
+	/**
      * Retourne le nombre total de résultats
-     * @param bool $clone Doit-on clôner la requête pour la conserver en l'état ou peut-on l'utiliser
      * @return int
      */
-    public function totalCount(bool $clone = TRUE) : int
+    public function totalCount() : int
     {
         if($this->_total_count === NULL)
         {
             $this->_total_count = 0;
+           
+            $response = $this->_countResultsQuery()->execute($this->_database);
             
-            $query = ($clone) ? (clone $this->_query) : $this->_query;
-            
-            $query->limit = NULL;
-            $query->offset = NULL;
-            
-            $response = $query->select([
-                DB::expression('COUNT(*) AS nb'),
-            ])->execute($this->_database);
-            
-           ;
-            
-            $firstItem = Arr::get($response, 0);
-            $this->_total_count = ($firstItem !== NULL) ? (int) (Arr::get($firstItem, 'nb')) : 0;
+            $firstItem = getArray($response, 0);
+            $this->_total_count = ($firstItem !== NULL) ? (int) (getArray($firstItem, 'nb')) : 0;
         }
         return $this->_total_count;
+    }
+	
+	/**
+     * Retourne la requête de calcul du nombre de résultats
+     * @return QueryBuilder
+     */
+    protected function _countResultsQuery() : QueryBuilder
+    {
+    	$query = clone $this->_query;
+    	
+    	$query->limit = NULL;
+    	$query->offset = NULL;
+    	
+    	return $query->select([
+    		DB::expression('COUNT(*) AS nb'),
+    	]);
     }
     
     /**

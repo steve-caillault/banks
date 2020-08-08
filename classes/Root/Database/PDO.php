@@ -75,7 +75,7 @@ class PDO extends Database {
 			static::$_last_query = trim(substr($subQuery, 0, strpos($subQuery, "\n" /*PHP_EOL*/)));
 		}
 		
-	 	echo debug(static::$_last_query) . "\n\n";
+	 	// echo debug(static::$_last_query) . "\n\n";
 		
 		// S'il y a une erreur lors de l'éxécution de la requête
 		if(! $response)

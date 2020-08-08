@@ -132,7 +132,7 @@ abstract class Statistic extends Model {
 	public function compute() : void
 	{
 		$this->date = $this->date();
-		$response = DB::insert(static::$table, static::columns())
+		DB::insert(static::$table, static::columns())
 			->addValues($this->asArray())
 			->onDuplicateUpdate([
 				'amount' => $this->amount,

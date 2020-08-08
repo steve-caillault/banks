@@ -7,7 +7,7 @@
 namespace App\Validation\Rules;
 
 use Root\Validation\Rules\Rule;
-use App\Model;
+use App\{ Model, PHP };
 
 abstract class ModelExistingRule extends Rule {
 	
@@ -15,7 +15,7 @@ abstract class ModelExistingRule extends Rule {
 	 * Modèle recherché
 	 * @var Model
 	 */
-	protected $_model_searched = NULL;
+	protected ?Model $_model_searched = NULL;
 	
 	/********************************************************************************/
 	
@@ -39,13 +39,7 @@ abstract class ModelExistingRule extends Rule {
 		}
 		
 		// Vérifit que la classe du modèle à utiliser est bien une classe d'un modèle
-		$allowedClass = FALSE;
-		try {
-			$defaultObject = $class::defaultObject();
-			$allowedClass = is_subclass_of($defaultObject, 'App\Model');
-		} catch(\Exception $exception) {
-			return $allowedClass = FALSE;
-		}
+		$allowedClass = PHP::isSubclass($class, Model::class);;
 		if(! $allowedClass)
 		{
 			exception(strtr('La classe :class n\'est pas une classe de modèle autorisée.', [

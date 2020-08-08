@@ -28,6 +28,12 @@ class Owner extends Model {
 	public $id = NULL;
 	
 	/**
+	 * Identifiant de l'utilisateur gérant le compte
+	 * @var int
+	 */
+	public $user_id = NULL;
+	
+	/**
 	 * Prénom
 	 * @var string
 	 */
@@ -179,11 +185,22 @@ class Owner extends Model {
 	}
 	
 	/**
-	 * Retourne l'URI de l'ajout de budget
-	 * @param int $year Si renseigné, l'année dont on gére le budget
+	 * Retourne l'URI d'initialisation d'un budget
 	 * @return string
 	 */
-	public function addBudgetUri(?int $year = NULL) : string
+	public function initBudgetUri() : string
+	{
+		return Route::retrieve('owners.budgets.init')->uri([
+			'ownerId' => $this->id,
+		]);
+	}
+	
+	/**
+	 * Retourne l'URI de l'ajout de budget
+	 * @param int $year L'année dont on gére le budget
+	 * @return string
+	 */
+	public function addBudgetUri(int $year) : string
 	{
 		return Route::retrieve('owners.budgets.add')->uri([
 			'ownerId' => $this->id,

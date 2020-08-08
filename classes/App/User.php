@@ -80,11 +80,16 @@ class User extends Model {
 		if($user !== NULL)
 		{
 			self::$_current = $user;
-			session()->change(self::SESSION_KEY, $user);
+			session()->change(self::SESSION_KEY, $user->id);
 		}
 		elseif(self::$_current === FALSE)
 		{
-			self::$_current = session()->retrieve(self::SESSION_KEY);
+			$userId = session()->retrieve(self::SESSION_KEY);
+			self::$_current = NULL;
+			if($userId !== NULL)
+			{
+				self::$_current = static::factory($userId);
+			}
 		}
 		return self::$_current;
 	}

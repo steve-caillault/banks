@@ -118,7 +118,7 @@ class Site {
         {
             foreach($configScripts as $script)
             {
-            	$url = 'files/scripts/' . $script;
+            	$url = 'resources/scripts/' . $script;
                 $scripts .= HTML::script($url);
             }
         }
@@ -162,13 +162,13 @@ class Site {
         {
             foreach($configStyles as $style)
             {
-                $url = 'files/styles/' . $style;
+                $url = 'resources/styles/' . $style;
                 $styles .= HTML::style($url);
             }
         }
-        $styles .= HTML::style('files/styles/print.css', [
+       	/*$styles .= HTML::style('files/styles/print.css', [
             'media' => 'print',
-        ]);
+        ]);*/
         return $styles;
     }
     
