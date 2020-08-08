@@ -7,6 +7,11 @@ CREATE TABLE users(
 
 CREATE TABLE owners(
 	id TINYINT(3) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	
+	user_id VARCHAR(100) NOT NULL,
+	INDEX fk_user_id(user_id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	
 	first_name VARCHAR(100) NOT NULL,
 	last_name VARCHAR(100) NOT NULL
 )ENGINE=InnoDB;
@@ -58,7 +63,7 @@ CREATE TABLE operations(
 	
 	`type` ENUM('CREDIT', 'DEBIT') NOT NULL,
 	name VARCHAR(100) NOT NULL,
-	`value` FLOAT(10, 2) NOT NULL DEFAULT 0,
+	`amount` FLOAT(10, 2) NOT NULL DEFAULT 0,
 	
 	`date` DATE NOT NULL,
 	INDEX idx_date(`date`),
