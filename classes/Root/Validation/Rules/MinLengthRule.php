@@ -12,7 +12,7 @@ class MinLengthRule extends Rule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'La valeur doit avoir au moins :min caractères.';
+	protected string $_error_message = 'La valeur doit avoir au moins :min caractères.';
 	
 	/********************************************************************************/
 	

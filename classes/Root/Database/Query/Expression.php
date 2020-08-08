@@ -14,7 +14,7 @@ class Expression extends Instanciable {
      * Valeur de l'expression
      * @var string
      */
-    private $_value = NULL;
+    private string $_value;
     
     /********************************************************************************/
     

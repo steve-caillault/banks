@@ -12,7 +12,7 @@ class MaxLengthRule extends Rule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'La valeur doit avoir au plus :max caractères.';
+	protected string $_error_message = 'La valeur doit avoir au plus :max caractères.';
 	
 	/********************************************************************************/
 	

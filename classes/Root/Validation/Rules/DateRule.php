@@ -14,7 +14,7 @@ class DateRule extends Rule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'La valeur doit être une date valide.';
+	protected string $_error_message = 'La valeur doit être une date valide.';
 	
 	/********************************************************************************/
 	

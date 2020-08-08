@@ -11,12 +11,27 @@ use Root\Image;
 class ImageGIF extends Image {
 	
 	/**
+	 * Type d'image
+	 * @param string
+	 */
+	protected string $_type = 'gif';
+	
+	/**
 	 * Initialise la ressource
 	 * @return Resource
 	 */
 	protected function _initResource()
 	{
 		return imagecreatefromgif($this->_filepath);
+	}
+	
+	/**
+	 * Affichage de l'image
+	 * @return void
+	 */
+	protected function _getContent() : void
+	{
+		imagegif($this->_resource);
 	}
 	
 	/**

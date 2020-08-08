@@ -12,19 +12,19 @@ class Validation extends Instanciable {
 	 * Données d'un tableau à valider
 	 * @var array
 	 */
-	private $_data = [];
+	private array $_data = [];
 	
 	/**
 	 * Règles pour la validation pour chaque champs
 	 * @var array
 	 */
-	private $_groupRules = [];
+	private array $_groupRules = [];
 	
 	/**
 	 * Listes des erreurs
 	 * @var array
 	 */
-	private $_errors = [];
+	private array $_errors = [];
 	
 	/********************************************************************************/
 	
@@ -38,8 +38,8 @@ class Validation extends Instanciable {
 	 */
 	protected function __construct(array $params = [])
 	{
-		$this->_data = Arr::get($params, 'data', $this->_data);
-		$this->_groupRules = Arr::get($params, 'rules', $this->_groupRules);
+		$this->_data = getArray($params, 'data', $this->_data);
+		$this->_groupRules = getArray($params, 'rules', $this->_groupRules);
 	}
 
 	/********************************************************************************/
@@ -54,13 +54,12 @@ class Validation extends Instanciable {
 		
 		foreach($this->_groupRules as $field => $rules)
 		{
-			$fieldValue = Arr::get($this->_data, $field);
-			$rulesKeys = array_keys($rules);
+			$fieldValue = getArray($this->_data, $field);
 			$required = FALSE;
 			
 			foreach($rules as $ruleData)
 			{
-				$ruleName = Arr::get($ruleData, 0);
+				$ruleName = getArray($ruleData, 0);
 				
 				if($ruleName == 'required')
 				{
@@ -72,7 +71,7 @@ class Validation extends Instanciable {
 					continue;
 				}
 				
-				$ruleParams = Arr::get($ruleData, 1, []);
+				$ruleParams = getArray($ruleData, 1, []);
 				
 				$classFound = FALSE;
 				$classRule = NULL;
@@ -94,8 +93,8 @@ class Validation extends Instanciable {
 				}
 				
 				$rule = $classRule::factory([
-					'value' 		=> $fieldValue,
-					'parameters'	=> $ruleParams,
+					'value' => $fieldValue,
+					'parameters' => $ruleParams,
 				]);
 				
 				if(! $rule->check())
@@ -116,7 +115,7 @@ class Validation extends Instanciable {
 	 */
 	public function addError(string $field, string $ruleName, string $defaultMessage) : void
 	{
-		if(! Arr::get($this->_errors, $field))
+		if(! getArray($this->_errors, $field))
 		{
 			$this->_errors[$field] = [];
 		}

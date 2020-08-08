@@ -7,7 +7,6 @@
 namespace Root\Validation\Rules;
 
 use Root\Instanciable;
-use Root\Arr;
 
 abstract class Rule extends Instanciable {
 	
@@ -21,13 +20,13 @@ abstract class Rule extends Instanciable {
 	 * Paramètre de la règle
 	 * @var array
 	 */
-	private $_parameters = [];
+	private array $_parameters = [];
 	
 	/**
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = NULL;
+	protected string $_error_message;
 	
 	/********************************************************************************/
 	
@@ -42,8 +41,8 @@ abstract class Rule extends Instanciable {
 	 */
 	protected function __construct(array $parameters = [])
 	{
-		$this->_value = Arr::get($parameters, 'value', $this->_value);
-		$this->_parameters = Arr::get($parameters, 'parameters', $this->_parameters);
+		$this->_value = getArray($parameters, 'value', $this->_value);
+		$this->_parameters = getArray($parameters, 'parameters', $this->_parameters);
 	}
 	
 	/********************************************************************************/
@@ -73,7 +72,14 @@ abstract class Rule extends Instanciable {
 
 		$values = array_values($this->_parameters);
 		array_walk($values, function(&$item, $key) {
-			$item = (is_array($item) ? implode(', ', $item) : $item);
+			if(! is_object($item))
+			{
+				$item = (is_array($item) ? implode(', ', $item) : $item);
+			}
+			else
+			{
+				$item = NULL;
+			}
 		});
 		
 		return strtr($this->_error_message, array_combine($keys, $values));
@@ -96,7 +102,7 @@ abstract class Rule extends Instanciable {
 	 */
 	protected function _getParameter(string $key, $defaultValue = NULL)
 	{
-		return Arr::get($this->_parameters, $key, $defaultValue);
+		return getArray($this->_parameters, $key, $defaultValue);
 	}
 	
 	/********************************************************************************/

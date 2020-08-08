@@ -14,13 +14,13 @@ class View {
 	 * Fichier de la vue 
 	 * @var string
 	 */
-	private $_path = NULL;
+	private string $_path;
 	
 	/**
 	 * Données aux données de la vue
 	 * @var array
 	 */
-	private $_data	= [];
+	private array $_data = [];
 	
 	/********************************************************************************/
 	
@@ -28,8 +28,8 @@ class View {
 	
 	/**
 	 * Constructeur
-	 * @var string $path Chemin de la vue
-	 * @var array $data Données à transmettre à la vue
+	 * @param string $path Chemin de la vue
+	 * @param array $data Données à transmettre à la vue
 	 */
 	private function __construct(string $path, array $data = [])
 	{
@@ -49,8 +49,8 @@ class View {
 	
 	/**
 	 * Instanciation
-	 * @var string $path Chemin de la vue
-	 * @var array $data Données à transmettre à la vue
+	 * @param string $path Chemin de la vue
+	 * @param array $data Données à transmettre à la vue
 	 * @return self
 	 */
 	public static function factory(string $path, array $data = []) : self
@@ -61,9 +61,22 @@ class View {
 	/********************************************************************************/
 	
 	/**
+	 * Retourne la valeur d'une variable
+	 * @param string $key Clé de la variable dans le tableau de données
+	 * @param mixed $default Valeur par défaut à retourner
+	 * @return mixed
+	 */
+	public function getVar(string $key, $default = NULL)
+	{
+		return getArray($this->_data, $key, $default);
+	}
+	
+	/********************************************************************************/
+	
+	/**
 	 * Affecte une variable à la vue
-	 * @var string $key Nom de la variable dans la vue
-	 * @var mixed $value Valeur de la variable
+	 * @param string $key Nom de la variable dans la vue
+	 * @param mixed $value Valeur de la variable
 	 * @return self
 	 */
 	public function setVar(string $key, $value) : self
@@ -74,7 +87,7 @@ class View {
 	
 	/**
 	 * Affecte plusieurs variables à la vue
-	 * @var array $data
+	 * @param array $data
 	 * @return self
 	 */
 	public function setVars(array $data) : self
@@ -82,6 +95,8 @@ class View {
 	   $this->_data = array_merge($this->_data, $data);
 	   return $this;
 	}
+	
+	/********************************************************************************/
 	
 	/**
 	 * Méthode de rendu

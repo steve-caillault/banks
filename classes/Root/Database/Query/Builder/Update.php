@@ -14,13 +14,13 @@ class Update extends Builder {
 	 * Type de requête
 	 * @var string
 	 */
-	protected $_type = self::TYPE_UPDATE;
+	protected string $_type = self::TYPE_UPDATE;
 	
 	/**
 	 * Tableau des modification à effectuer
 	 * @var array
 	 */
-	private $_set = [];
+	private array $_set = [];
 	
 	/************************************************************************/
 	
@@ -36,9 +36,9 @@ class Update extends Builder {
 	/**
 	 * Instanciation
 	 * @param string $table Table où supprimer
-	 * @return Update
+	 * @return self
 	 */
-	public static function factory(string $table) : Update
+	public static function factory(string $table) : self
 	{
 		return new self($table);
 	}
@@ -48,13 +48,12 @@ class Update extends Builder {
 	/**
 	 * Affecte les données à mettre à jour
 	 * @param array $data
-	 * @return Update
+	 * @return self
 	 */
 	public function set(array $data) : self
 	{
 		foreach($data as $key => $value)
 		{
-			// $queryValue = ($value === NULL) ? 'NULL' : '\'' . addslashes($value) . '\'';
 			$queryValue = $this->_fieldValue($value);
 			$this->_set[] = $key .' = ' . $queryValue;
 		}
@@ -65,7 +64,7 @@ class Update extends Builder {
 	
 	/**
 	 * Retourne la chaine SET compilée
-	 * ]return string
+	 * return string
 	 */
 	protected function _setCompiled() : ?string
 	{

@@ -9,44 +9,46 @@ namespace Root;
 
 class Pagination extends Instanciable {
 	
-	const METHOD_QUERY = 'query';
-	const METHOD_ROUTE = 'route';
+	private const 
+		METHOD_QUERY = 'query',
+		METHOD_ROUTE = 'route'
+	;
 	
 	/**
 	 * Chemin où se trouve la page où l'on se trouve
 	 * Format : route|query:{value} ; exemple : route:page
 	 * @var string
 	 */
-	private $_page_path = 'route:page';
+	private string $_page_path = 'route:page';
 	
 	/**
 	 * Page actuelle
 	 * @return int
 	 */
-	private $_current_page = NULL;
+	private ?int $_current_page = NULL;
 	
 	/**
 	 * Nombre total d'éléments de la pagination
 	 * @return int
 	 */
-	private $_total_items = 0;
+	private int $_total_items = 0;
 	
 	/**
 	 * Nombre d'éléments par page
 	 * @return int
 	 */
-	private $_items_per_page = 20;
+	private int $_items_per_page = 20;
 	
 	/**
 	 * Nombre de page
 	 * @var int
 	 */
-	private $_total_pages = 0;
+	private int $_total_pages = 0;
 	/**
 	 * Chemin de la vue à utiliser par défaut
 	 * @var string
 	 */
-	private $_path_view = 'pagination/default';
+	private string $_path_view = 'pagination/default';
 	
 	/*********************************************************************************/
 	
@@ -63,7 +65,7 @@ class Pagination extends Instanciable {
 		foreach($keys as $key)
 		{
 			$property = '_' . $key;
-			$this->{ $property } = Arr::get($params, $key, $this->{ $property });
+			$this->{ $property } = getArray($params, $key, $this->{ $property });
 		}
 		
 		// Nombre de page
@@ -100,11 +102,11 @@ class Pagination extends Instanciable {
 			
 			if($method == self::METHOD_QUERY)
 			{
-				$this->_current_page = Arr::get($request->query(), $param, 1);
+				$this->_current_page = getArray($request->query(), $param, 1);
 			}
 			else
 			{
-				$this->_current_page = Arr::get($request->parameters(), $param, 1);
+				$this->_current_page = getArray($request->parameters(), $param, 1);
 			}
 			
 		}
@@ -149,7 +151,7 @@ class Pagination extends Instanciable {
 			$uri .= '?' . http_build_query($query);
 		}
 		
-		return URL::get($uri);
+		return getURL($uri);
 	}
 	
 	/*********************************************************************************/

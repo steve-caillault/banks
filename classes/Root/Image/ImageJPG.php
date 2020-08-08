@@ -11,12 +11,27 @@ use Root\Image;
 class ImageJPG extends Image {
 	
 	/**
+	 * Type d'image
+	 * @param string
+	 */
+	protected string $_type = 'jpg';
+	
+	/**
 	 * Initialise la ressource
 	 * @return Resource
 	 */
 	protected function _initResource()
 	{
 		return imagecreatefromjpeg($this->_filepath);
+	}
+	
+	/**
+	 * Affichage de l'image
+	 * @return void
+	 */
+	protected function _getContent() : void
+	{
+		imagejpeg($this->_resource);
 	}
 	
 	/**

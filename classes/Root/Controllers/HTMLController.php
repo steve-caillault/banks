@@ -6,8 +6,7 @@
 
 namespace Root\Controllers;
 
-use Root\Controller;
-use Root\View;
+use Root\{ Controller, Response, View };
 
 class HTMLController extends Controller {
     
@@ -15,13 +14,13 @@ class HTMLController extends Controller {
      * Chemin de la vue de base à utiliser
      * @var string
      */
-    protected $_templatePath = NULL;
+    protected string $_template_path;
     
     /**
      * Vue à utiliser
      * @var View
      */
-    protected $_template = NULL;
+    protected View $_template;
     
     /********************************************************************************/
     
@@ -32,12 +31,12 @@ class HTMLController extends Controller {
      */
     public function __construct()
     {
-    	if($this->_templatePath === NULL)
+    	if($this->_template_path === NULL)
         {
             exception('Le template est inconnu.');
         }
         
-        $this->_template = View::factory($this->_templatePath);
+        $this->_template = View::factory($this->_template_path);
         
         parent::__construct();
     }
@@ -46,12 +45,12 @@ class HTMLController extends Controller {
     
     /**
      * Retourne la réponse du contrôleur
-     * @param mixed $response Si renseignée, la valeur à effecter
+     * @param Response $response Si renseignée, la valeur à effecter
      * @return mixed
      */
     final public function response($response = NULL)
     {
-        $this->_response = $this->_template->render();
+        $this->_response = new Response($this->_template->render());
         return $this->_response;
     }
    

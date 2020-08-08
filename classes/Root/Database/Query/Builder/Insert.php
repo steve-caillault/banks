@@ -14,25 +14,25 @@ class Insert extends Builder {
 	 * Type de requête
 	 * @var string
 	 */
-	protected $_type			= self::TYPE_INSERT;
+	protected string $_type	= self::TYPE_INSERT;
 	
 	/**
 	 * Vrai s'il faut ignorer les clés étrangères
-	 * @var boolean
+	 * @var bool
 	 */
-	private $_ignore 			= FALSE;
+	private bool $_ignore = FALSE;
 	
 	/**
 	 * Valeur à mettre à jour s'il y a un conflit de clé
 	 * @var array
 	 */
-	private $_on_duplicate_data	= NULL;
+	private array $_on_duplicate_data = [];
 	
 	/**
 	 * Tableau des valeurs à insérer
 	 * @var array
 	 */
-	private $_values			= array();
+	private array $_values = [];
 	
 	/************************************************************************/
 	
@@ -49,7 +49,7 @@ class Insert extends Builder {
 	/**
 	 * Instanciation
 	 * @param string $table Table où insérer
-	 * @return Insert
+	 * @return self
 	 */
 	public static function factory(string $table) : self
 	{
@@ -61,7 +61,7 @@ class Insert extends Builder {
 	/**
 	 * Active / désactive la vérification des clés étangères
 	 * @param bool $ignore Si vrai, on ignore la vérification des clés étangères
-	 * @return Insert
+	 * @return self
 	 */
 	public function ignore(bool $ignore) : self
 	{
@@ -72,7 +72,7 @@ class Insert extends Builder {
 	/**
 	 * Affecte les champs à affecter lors de l'insertion
 	 * @var array $fields
-	 * @return Insert
+	 * @return self
 	 */
 	public function fields(array $fields) : self
 	{
@@ -83,7 +83,7 @@ class Insert extends Builder {
 	/**
 	 * Affecte les données à mettre à jour s'il y a un conflit de clé
 	 * @param array $data Données à mettre à jour en base de données
-	 * @return Insert
+	 * @return self
 	 */
 	public function onDuplicateUpdate(array $data) : self
 	{
@@ -142,7 +142,7 @@ class Insert extends Builder {
 		$query .= $values;
 		
 		// Gestion ON DUPLICATE KEY UPDATE
-		if(is_array($this->_on_duplicate_data) AND count($this->_on_duplicate_data) > 0)
+		if(count($this->_on_duplicate_data) > 0)
 		{
 			$updateData = [];
 			foreach($this->_on_duplicate_data as $key => $value)
@@ -155,8 +155,6 @@ class Insert extends Builder {
 			
 			$query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $updateData);
 		}
-		
-		// echo $query . '<br /><br />';
 		
 		return $query;
 	}

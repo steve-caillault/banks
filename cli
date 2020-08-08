@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php 
+
+require('./classes/Root/Core.php');
+
+Root\Core::initialize();
+
+set_exception_handler([ Root\Exceptions\CLIException::class, 'handler' ]);
+
+echo Root\Task::current()->response();

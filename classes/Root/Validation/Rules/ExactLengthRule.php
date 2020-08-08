@@ -12,7 +12,7 @@ class ExactLengthRule extends Rule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'La valeur doit avoir exactement :length caractères.';
+	protected string $_error_message = 'La valeur doit avoir exactement :length caractères.';
 	
 	/********************************************************************************/
 	

@@ -43,6 +43,15 @@ class DB {
 	}
 	
 	/**
+	 * Retourne la dernière requête exécutée
+	 * @return string
+	 */
+	public static function lastQuery() : ?string
+	{
+		return Database::lastQuery();
+	}
+	
+	/**
 	 * Retourne une instance pour une requête SELECT
 	 * @param array $fields Champs à sélectionner
 	 * @return Select

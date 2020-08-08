@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Vérification qu'une valeur est présent dans un tableau de valeur
+ * Vérification qu'une valeur a une valeur maximale
  */
 
 namespace Root\Validation\Rules;
 
-class InArrayRule extends Rule {
+class MaxRule extends Rule {
 	
 	/**
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected string $_error_message = 'La valeur doit être présent dans le tableau :array.';
+	protected string $_error_message = 'La valeur doit être inférieur ou égale à :max.';
 	
 	/********************************************************************************/
 	
@@ -25,14 +25,14 @@ class InArrayRule extends Rule {
 	public function check() : bool
 	{
 		$value = $this->_getValue();
-		$allowedValues = $this->_getParameter('array');
+		$maximum = $this->_getParameter('max');
 		
-		if(! is_array($allowedValues) OR count($allowedValues) == 0)
+		if(! is_numeric($maximum))
 		{
-			exception('Le tableau de valeur est invalide ou vide.');
+			exception('Le maximum doit être une valeur numérique.');
 		}
 		
-		return in_array($value, $allowedValues);
+		return ($value <= ((int) $maximum));
 	}
 	
 	/********************************************************************************/

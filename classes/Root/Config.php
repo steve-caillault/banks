@@ -4,12 +4,44 @@ namespace Root;
 
 class Config
 {
+	private const HEADER = "<?php defined('INITIALIZED') OR die('Vous n\'êtes pas autorisé à accéder à ce fichier.');";
 	
 	/**
 	 * Tableau des configuration déjà chargées
 	 * @var array
 	 */
-	private static $_loaded = [];
+	private static array $_loaded = [];
+	
+	/************************************************************************/
+	
+	/**
+	 * Création d'un fichier de configuration
+	 * @param string $key Chemin vers le fichier
+	 * @param array $data Données à écrire
+	 * @return void
+	 */
+	public static function updateFile(string $key, array $data) : bool
+	{
+		$environment = environment();
+		$filename = $key . '.php';
+		$filepath = implode('/', [
+			'config', 'environments', strtolower($environment), $filename
+		]);
+		
+		$defaultContent = implode(PHP_EOL, [ self::HEADER, 'return [];', ]);
+		
+		$content = strtr($defaultContent, [
+			'[]' => var_export($data, TRUE),
+		]);
+		$wrote = @ file_put_contents($filepath, $content);
+		
+		if(! $wrote)
+		{
+			return FALSE;
+		}
+		
+		return ($wrote > 0);
+	}
 
 	/************************************************************************/
 	
@@ -17,9 +49,10 @@ class Config
 	 * Retourne la valeur d'une configuration dont on donne la clé
 	 * On utilise des . pour accéder aux tableaux enfants
 	 * @param string $key
+	 * @param mixed $defaultValue Valeur par défaut à retourner
 	 * @return mixed
 	 */
-	public static function load(string $key)
+	public static function load(string $key, $defaultValue = NULL)
 	{
 		$environment = environment();
 		$keys = explode('.', $key);
@@ -30,7 +63,7 @@ class Config
 			$filename = $file . '.php';
 			$filepaths = [
 				'default' => implode(DIRECTORY_SEPARATOR, [ '.', 'config', $filename, ]),
-				'environment' => implode(DIRECTORY_SEPARATOR, [ '.', 'config', 'environments', $environment, $filename, ]),
+				'environment' => implode(DIRECTORY_SEPARATOR, [ '.', 'config', 'environments', strtolower($environment), $filename, ]),
 			];
 			
 			$fileData = [];
@@ -49,7 +82,7 @@ class Config
 			// Si le fichier ne peut être chargé
 			if($loaded === FALSE)
 			{
-				return NULL;
+				return $defaultValue;
 			}
 			unset($keys[0]);
 			self::$_loaded[$file] = $fileData;
@@ -57,11 +90,9 @@ class Config
 		
 		$data = self::$_loaded[$file];
 		
-		$value = NULL;
-		
 		while($key = current($keys))
 		{
-			$data = Arr::get($data, $key);
+			$data = getArray($data, $key, $defaultValue);
 			next($keys);
 		}
 	

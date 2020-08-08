@@ -14,20 +14,19 @@ class Select extends Builder {
 	 * Type de requête
 	 * @var string
 	 */
-	protected $_type	= self::TYPE_SELECT;
+	protected string $_type = self::TYPE_SELECT;
 	
 	/**
 	 * Vrai si la selection utilise DISTINCT
-	 * @var boolean
+	 * @var bool
 	 */
-	private $_distinct	= FALSE;
+	private bool $_distinct = FALSE;
 	
 	/************************************************************************/
 	
 	/**
 	 * Constructeur 
 	 * @param array $fields Champs à sélectionner
-	 * @return void
 	 */
 	protected function __construct(array $fields)
 	{
@@ -37,9 +36,9 @@ class Select extends Builder {
 	/**
 	 * Instanciation
 	 * @param array $fields Champs à sélectionner
-	 * @return Select
+	 * @return self
 	 */
-	public static function factory(array $fields) : Select
+	public static function factory(array $fields) : self
 	{
 		return new self($fields);
 	}
@@ -47,7 +46,7 @@ class Select extends Builder {
 	/**
 	 * Active la sélection de champs distinct
 	 * @param bool $distinct Si vrai, active la sélection de champs distinct
-	 * @return Select
+	 * @return self
 	 */
 	public function distinct(bool $distinct = FALSE) : self
 	{
@@ -65,9 +64,10 @@ class Select extends Builder {
 		
 		// Champs à sélectionner
 		$fields = (count($this->_select) == 0) ? '*' : implode(', ', $this->_select);
+		
 		if($this->_distinct)
 		{
-			$fields = 'DISTINCT(' . $fields . ')';
+			$fields = 'DISTINCT '.  $fields;
 		}
 		
 		// Tables

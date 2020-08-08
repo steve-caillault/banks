@@ -22,21 +22,30 @@ abstract class Image {
 	
 	/**
 	 * Type d'image
-	 * @param string
+	 * @var string
 	 */
-	private $_type = NULL;
+	protected string $_type;
 	
 	/**
 	 * Chemin de l'image
 	 * @var string
 	 */
-	protected $_filepath = NULL;
+	protected string $_filepath;
 	
 	/**
 	 * Ressource de l'mage
 	 * @var resource
 	 */
 	protected $_resource = NULL;
+	
+	/**
+	 * Dimensions de l'image
+	 * @var array
+	 */
+	private array $_dimensions = [
+		'width' => NULL,
+		'height' => NULL,
+	];
 	
 	/**********************************************************************************/
 	
@@ -66,7 +75,7 @@ abstract class Image {
 			exception('Type de fichier non autorisé.');
 		}
 		
-		$class = __NAMESPACE__ . '\Image\Image' . strtoupper(Arr::get(self::ALLOWED_TYPES, $type));
+		$class = __NAMESPACE__ . '\Image\Image' . strtoupper(getArray(self::ALLOWED_TYPES, $type));
 		return new $class($filepath);
 	}
 	
@@ -85,33 +94,112 @@ abstract class Image {
 	 * @param int $width
 	 * @param int $height
 	 */
-	public function resize(int $width, int $height) : void
+	public function resize(?int $width, ?int $height) : void
 	{
-		list($originalWidth, $originalHeight) = getimagesize($this->_filepath);
-
+		$originalDimensions = $this->getDimensions();
+		$originalWidth = getArray($originalDimensions, 'width');
+		$originalHeight = getArray($originalDimensions, 'height');
+		
 		// Modifit les dimensions pour respecter les proportions
-		if(($originalWidth / $width) > ($originalHeight / $height))
+		
+		if($width !== NULL OR $height !== NULL)
 		{
-			$height = $originalHeight * $width / $originalWidth;
+			if($height === NULL AND $width !== NULL)
+			{
+				$height = $originalHeight * ($width / $originalWidth);  
+			}
+			elseif($width === NULL AND $height !== NULL)
+			{
+				$width = $originalWidth * ($height / $originalHeight);
+			}
+			elseif(($originalWidth / $width) > ($originalHeight / $height))
+			{
+				$height = $originalHeight * ($width / $originalWidth);
+			}
+			else
+			{
+				$width = $originalWidth * ($height / $originalHeight);
+			}
 		}
-		else
-		{
-			$width = $originalWidth * $height / $originalHeight;
-		}
+		
+		$this->_setDimensions($width, $height);
 		
 		$imageDest = imagecreatetruecolor($width, $height);
 		imagecopyresampled($imageDest, $this->_resource, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
 		$this->_resource = $imageDest;
 	}
 	
+	/**
+	 * Modifit les dimensions de l'image
+	 * @param float $width
+	 * @param float $height
+	 * @return void
+	 */
+	private function _setDimensions(float $width, float $height) : void
+	{
+	    $this->_dimensions = [
+	        'width' => $width,
+	        'height' => $height,
+	    ];
+	}
+	        	
+	/**
+	 * Retourne les dimensions de l'image
+	 * @return array
+	 */
+	 public function getDimensions() : array
+	 {
+	 	$width = getArray($this->_dimensions, 'width');
+	 	$height = getArray($this->_dimensions, 'height');
+	 	
+	 	if($width === NULL OR $height === NULL)
+	 	{
+	 		list($width, $height) = getimagesize($this->_filepath);
+	 		$this->_dimensions = [
+	 			'width' => $width,
+	 			'height' => $height,
+	 		];
+	 	}
+	 	
+	 	return $this->_dimensions;
+	}
+	
 	/**********************************************************************************/
 	
+	/**
+	 * Retourne le contenu de l'image
+	 * @return string
+	 */
+	public function getContent() : string
+	{
+	    ob_start();
+	    $this->_getContent();
+	    $content = ob_get_contents();
+	    ob_end_clean();
+	    return $content;
+	}
+	
+	/**
+	 * Affichage de l'image
+	 * @return void
+	 */
+	abstract protected function _getContent() : void;
+
 	/**
 	 * Enregistre l'image
 	 * @param int $quality
 	 * @return bool
 	 */
 	abstract public function save(int $quality = 100) : bool;
+	
+	/**
+	 * Retourne le type d'image
+	 * @return string
+	 */
+	public function type() : string
+	{
+	    return $this->_type;
+	}
 	
 	/**********************************************************************************/
 	

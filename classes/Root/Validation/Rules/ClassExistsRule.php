@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Vérification qu'une valeur représente une valeur numérique
+ * Vérification qu'une valeur représente le nom du classe PHP qui existe
  */
 
 namespace Root\Validation\Rules;
 
-class NumericRule extends Rule {
+class ClassExistsRule extends Rule {
 	
 	/**
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected string $_error_message = 'La valeur doit être une valeur numérique.';
+	protected string $_error_message = 'La classe n\'existe pas.';
 	
 	/********************************************************************************/
 	
@@ -25,7 +25,9 @@ class NumericRule extends Rule {
 	public function check() : bool
 	{
 		$value = $this->_getValue();
-		return is_numeric($value);
+		return class_exists($value);
 	}
+	
+	/********************************************************************************/
 	
 }

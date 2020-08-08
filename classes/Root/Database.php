@@ -1,12 +1,12 @@
 <?php
 
-namespace Root;
-
-use Root\Database\PDO;
-
 /**
  * Gestion d'une base de données
  */
+
+namespace Root;
+
+use Root\Database\PDO;
 
 abstract class Database {
 	
@@ -26,13 +26,19 @@ abstract class Database {
 	 * Instances de Database déjà chargés
 	 * @var array
 	 */
-	private static $_instances = [];
+	private static array $_instances = [];
 	
 	/**
 	 * Identifiant de la dernière insertion
 	 * @var string
 	 */
-	protected static $_last_insert_id = NULL;
+	protected static ?string $_last_insert_id = NULL;
+	
+	/**
+	 * Dernière requête exécutée
+	 * @var string
+	 */
+	protected static ?string $_last_query = NULL;
 	
 	/************************************************************************/
 	
@@ -48,18 +54,18 @@ abstract class Database {
 	 * @param string $key Clé de la configuration de la base de donnée
 	 * @return Database
 	 */
-	private static function factory(string $key = self::INSTANCE_DEFAULT) : Database
+	private static function factory(string $key = self::INSTANCE_DEFAULT) : self
 	{
 		// Chargement de la configuration
-		$configuration_key = 'database.'.strtolower($key);
-		$configuration = Config::load($configuration_key);
+		$configurationKey = 'database.' . strtolower($key);
+		$configuration = getConfig($configurationKey);
 		if(! $configuration)
 		{
 			exception('Configuration de la base de données manquante.');
 		}
 		
-		$connection = Arr::get($configuration, 'connection');
-		$api = Arr::get($configuration, 'api', self::API_PDO);
+		$connection = getArray($configuration, 'connection');
+		$api = getArray($configuration, 'api', self::API_PDO);
 	
 		switch($api)
 		{
@@ -75,9 +81,9 @@ abstract class Database {
 	 * @param string $key Clé de la configuration de la base de données
 	 * @return Database
 	 */
-	public static function instance(string $key = self::INSTANCE_DEFAULT) : Database
+	public static function instance(string $key = self::INSTANCE_DEFAULT) : self
 	{
-		$instance = Arr::get(self::$_instances, $key);
+		$instance = getArray(self::$_instances, $key);
 		if(! $instance)
 		{
 			$instance = self::factory($key);
@@ -92,6 +98,15 @@ abstract class Database {
 	public static function lastInsertId() : ?string
 	{
 		return static::$_last_insert_id;
+	}
+	
+	/**
+	 * Retourne la dernière requête exécutée
+	 * @return string
+	 */
+	public static function lastQuery() : ?string
+	{
+		return static::$_last_query;
 	}
 	
 	/************************************************************************/

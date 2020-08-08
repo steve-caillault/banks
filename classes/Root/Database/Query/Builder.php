@@ -8,8 +8,6 @@
 namespace Root\Database\Query;
 
 use Root\Database;
-use Root\Arr;
-/***/
 use Root\Database\Query\Builder\Select as BuilderSelect;
 
 abstract class Builder
@@ -81,9 +79,14 @@ abstract class Builder
 	/***/
 	
 	/**
-	 * Opérateur IS (IS NULL, IS NOT NULL)
+	 * Opérateur IS NULL
 	 */
 	protected const WHERE_IS = 'IS';
+	
+	/**
+	 * Opérateur IS NOT NULL
+	 */
+	protected const WHERE_IS_NOT = 'IS NOT';
 	
 	/**
 	 * Opérateur = 
@@ -140,6 +143,7 @@ abstract class Builder
 	 */
 	private const _WHERE_OPERATORS = [
 		self::WHERE_IS,
+		self::WHERE_IS_NOT,
 		self::WHERE_EQUALS,
 		self::WHERE_GREATER,
 		self::WHERE_GREATER_EQUALS,
@@ -164,6 +168,8 @@ abstract class Builder
 	 */
 	public const DIRECTION_DESC = 'DESC';
 	
+	/***/
+	
 	/**
 	 * Sens de direction de tri autorisés
 	 */
@@ -177,63 +183,75 @@ abstract class Builder
 	 * Type de requête
 	 * @var string
 	 */
-	protected $_type		= NULL;
+	protected string $_type;
 	
 	/**
 	 * Table où effectuer les opérations
 	 * @var array
 	 */
-	protected $_tables		= array();
+	protected array $_tables = [];
 	
 	/**
 	 * Tableau des champs à sélectionner pour une requête SELECT
 	 * @var array
 	 */
-	protected $_select		= array();
+	protected array $_select = [];
 	
 	/**
 	 * Tableau des jointures à effectuer
 	 * @var array
 	 */
-	protected $_joins		= array();
+	protected array $_joins = [];
 	
 	/**
 	 * Tableau des clauses WHERE
 	 * @var array
 	 */
-	protected $_where		= array();
+	protected array $_where	= [];
 	
 	/**
 	 * Tableau des GROUP BY
 	 * @var array
 	 */
-	protected $_group_by	= array();
+	protected array $_group_by = [];
 	
 	/**
 	 * Tableau des ORDER BY
 	 * @var array
 	 */
-	protected $_order_by	= array();
+	protected array $_order_by = [];
 	
 	/**
 	 * Nombre d'éléments affectés par la requête
 	 * @var int
 	 */
-	protected $_limit		= NULL;
+	protected ?int $_limit = NULL;
 	
 	/**
 	 * Nombre des premiers éléments à exclure de la requête
 	 * @var int
 	 */
-	protected $_offset		= NULL;
+	protected ?int $_offset	= NULL;
 	
 	/***/
+	
+	/**
+	 * Préfixe des variables
+	 * @var string
+	 */
+	protected string $_variables_prefix = ':expression1';
+	
+	/**
+	 * Variables préparées
+	 * @var array
+	 */
+	protected array $_variables = [];
 	
 	/**
 	 * Liste des requêtes exécutées
 	 * @var array
 	 */
-	protected static $_queries = [];
+	protected static array $_queries = [];
 	
 	/********************************************************************************/
 	
@@ -320,6 +338,16 @@ abstract class Builder
 	}
 	
 	/**
+	 * Ajoute les champs en paramètre aux champs à sélectionner
+	 * @param array $fields
+	 * @return self
+	 */
+	public function addSelect(array $fields) : self
+	{
+		return $this->select(array_merge($this->_select, $fields));
+	}
+	
+	/**
 	 * Ajoute un GROUP BY
 	 * @param string $field Champs à grouper
 	 * @return self
@@ -328,7 +356,7 @@ abstract class Builder
 	{
 		if(! array_key_exists($field, $this->_group_by))
 		{
-			$this->_group_by[$field] = static::_fieldCompiled($field); 
+			$this->_group_by[$field] = $this->_fieldValue($field); 
 		}
 		return $this;
 	}
@@ -347,7 +375,6 @@ abstract class Builder
 		}
 		
 		$expression = $this->_fieldValue($field);
-
 		
 		$key = strtr($expression, [ '`' => '']);
 		
@@ -451,12 +478,12 @@ abstract class Builder
 	
 	/**
 	 * Ajoute la règle à la dernière jointure
-	 * @param string $field1
+	 * @param string|Expression $field1
 	 * @param string $operator
-	 * @param string $field2
+	 * @param string|Expression $field2
 	 * @return self
 	 */
-	public function on(string $field1, string $operator = self::WHERE_EQUALS, string $field2) : self
+	public function on($field1, string $operator /*= self::WHERE_EQUALS*/, $field2) : self
 	{
 		// Test si l'opérateur est valide
 		if(! self::_allowedWhereOperator($operator))
@@ -479,8 +506,11 @@ abstract class Builder
 	 */
 	public function whereExpression(callable $callable, string $whereType = self::CLAUSE_AND) : self
 	{
+		$countCurrentWhere = count($this->_where);
+		
 		// On utilise un objet BuilderSelect pour gérer un tableau WHERE isolé
 		$builder = new BuilderSelect([]); 
+		$builder->_variables_prefix = ':expression' . ($countCurrentWhere + 1);
 		$builder->_tables = $this->_tables;
 		$builder->_select = $this->_select;
 		
@@ -500,6 +530,8 @@ abstract class Builder
 			{
 				$where = ' ' . $whereType . ' ' . $where;
 			}
+			
+			$this->_variables = array_merge($this->_variables, $builder->_variables);
 			$this->_where[] = $where;
 		}
 		
@@ -514,13 +546,13 @@ abstract class Builder
 	public function addCriteria(array $params) : self
 	{
 		// Si on fait la jointure avec une table
-		$joinTable = Arr::get($params, 'table_to_join');
-		$joinType = Arr::get($params, 'join_type', self::JOIN);
+		$joinTable = getArray($params, 'table_to_join');
+		$joinType = getArray($params, 'join_type', self::JOIN);
 		
-		$left = Arr::get($params, 'left');
-		$operator = Arr::get($params, 'operator', self::WHERE_EQUALS);
-		$right = Arr::get($params, 'right');
-		$whereType = Arr::get($params, 'where_type', self::CLAUSE_AND);
+		$left = getArray($params, 'left');
+		$operator = getArray($params, 'operator', self::WHERE_EQUALS);
+		$right = getArray($params, 'right');
+		$whereType = getArray($params, 'where_type', self::CLAUSE_AND);
 		
 		// Si on ne fait pas de jointure, on ajoute une clause WHERE
 		if($joinTable === NULL)
@@ -545,7 +577,7 @@ abstract class Builder
 	 * @param mixed $field2
 	 * @return self
 	 */
-	public function where($field1, string $operator = self::WHERE_EQUALS, $field2) : self
+	public function where($field1, string $operator /*= self::WHERE_EQUALS*/, $field2) : self
 	{
 		return $this->_addwhereClause([
 			'left' => $field1,
@@ -556,12 +588,12 @@ abstract class Builder
 	
 	/**
 	 * Ajoute une clause OR WHERE
-	 * @param string $field1
+	 * @param mixed $field1
 	 * @param string $operator
 	 * @param mixed $field2
 	 * @return self
 	 */
-	public function orWhere(string $field1, string $operator = self::WHERE_EQUALS, $field2) : self
+	public function orWhere($field1, string $operator /*= self::WHERE_EQUALS*/, $field2) : self
 	{
 		return $this->_addwhereClause([
 			'left' => $field1,
@@ -603,11 +635,11 @@ abstract class Builder
 	 * @param mixed $field2
 	 * @return array
 	 */
-	 private function _whereRule($field1, string $operator = self::WHERE_EQUALS, $field2) : array
-	 {
+	private function _whereRule($field1, string $operator /*= self::WHERE_EQUALS*/, $field2) : array
+	{
 	 	if($field2 === NULL)
 	 	{
-	 		$operator = self::WHERE_IS;
+	 		$operator = ($operator == self::WHERE_EQUALS) ? self::WHERE_IS : self::WHERE_IS_NOT;
 	 	}
 	 	
 	 	// Test si l'opérateur est valide
@@ -627,7 +659,38 @@ abstract class Builder
 	 	
 	 	
 	 	return $rule;
-	 }
+	}
+	
+	/********************************************************************************/
+	
+	public function matchAgainst(array $fields, string $expression, ?string $mode = NULL) : string
+	{
+		$allowedModes = [
+			'IN NATURAL LANGUAGE MODE',
+			'IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION',
+			'IN BOOLEAN MODE',
+			'WITH QUERY EXPANSION',
+		];
+		
+		if($mode !== NULL AND ! in_array($mode, $allowedModes))
+		{
+			exception('Mode MATCH... AGAINST incorrect.');
+		}
+		
+		$fieldsFormatted = array_map(function($field) {
+			return static::_fieldCompiled($field);
+		}, $fields);
+		
+		
+		$valueExpression = $this->_fieldValue($expression);
+			
+		$expression = strtr('MATCH(:fields) AGAINST(:expression)', [
+			':fields' => implode(', ', $fieldsFormatted),
+			':expression' => trim($valueExpression . ' ' . $mode),  // trim('\'' . addslashes($expression) . '\' ' . $mode),
+		]);
+		
+		return $expression;
+	}
 	
 	/********************************************************************************/
 	
@@ -639,20 +702,8 @@ abstract class Builder
 	public function execute(string $name = Database::INSTANCE_DEFAULT)
 	{
 		$response = Database::instance($name)->execute($this);
-		static::$_queries[] = $this->_query();
+		static::$_queries[] = Database::lastQuery();
 		return $response;
-	}
-	
-	/**
-	 * Exécute la requête en paramètre en base de données
-	 * @param string $query Requête à exécuter
-	 * @param string $database Nom de la base de données sur laquelle appliquer la requête
-	 * @return void
-	 */
-	public static function executeQuery(string $query, string $database) : void
-	{
-		$response = Database::instance($database)->executeQuery($query);
-		static::$_queries[] = $query;
 	}
 	
 	/**
@@ -684,12 +735,16 @@ abstract class Builder
 	{
 		if($field instanceof Expression)
 		{
-			
 			return $field->getValue();
 		}
 		
 		return implode('.', array_map(function($value) {
-		    return '`' . $value . '`';
+			if(strpos($value, '`') !== FALSE)
+			{
+		
+		    	return $value;
+			}
+			return '`' . $value . '`';
 		}, explode('.', $field)));
 	}
 	
@@ -708,7 +763,8 @@ abstract class Builder
 			{
 				if(strpos($queryField, '.') !== FALSE)
 				{
-					list($table, $field) = explode('.', $queryField);
+					$dataField = explode('.', $queryField);
+					$field = $dataField[1];
 				}
 				else
 				{
@@ -750,36 +806,57 @@ abstract class Builder
 	 * @return string
 	 */
 	protected function _fieldValue($value) : string
-	{
-		// Détermine la valeur de la partie de droite
-		if($this->_isField($value))
-		{
-			return static::_fieldCompiled($value);
-		}
-		elseif($value === NULL)
-		{
-			return 'NULL';
-		}
-		elseif(is_array($value))
-		{
-			return '(' . implode(',', $value) . ')';
-		}
-		elseif(is_bool($value))
-		{
-			return (($value) ? 1 : 0);
-		}
-		elseif(is_numeric($value))
-		{
-			return $value;
-		}
-		elseif($value instanceof Expression)
+	{	
+		if($value instanceof Expression)
 		{
 			return $value->getValue();
 		}
+		elseif($this->_isField($value))
+		{
+			return static::_fieldCompiled($value);
+		}
+		elseif(is_array($value))
+		{
+			$keys = [];
+			foreach($value as $currentValue)
+			{
+				$keys[] = $this->_addVariables($currentValue);
+			}
+			return '(' . implode(',', $keys) . ')';
+		}
 		else
 		{
-			return '\'' . addslashes($value) . '\'';
+			return $this->_addVariables($value);
 		}
+	}
+	
+	/**
+	 * Retourne les variables préparées
+	 * @return array 
+	 */
+	public function variables() : array
+	{
+		return $this->_variables;
+	}
+	
+	/**
+	 * Ajoute une variable préparée
+	 * @param mixed $value
+	 * @return string La clé de la valeur dans le tableau des variables
+	 */
+	protected function _addVariables($value) : string
+	{
+		// @todo Ne pas faire pour les fichiers binaires 
+		$key = array_search($value, $this->_variables, TRUE);
+		
+		if($key === FALSE)
+		{
+			$index = count($this->_variables) + 1;
+			$key = $this->_variables_prefix . 'Param' . $index;
+			$this->_variables[$key] = $value;
+		}
+		
+		return $key;
 	}
 	
 	/**
@@ -798,14 +875,12 @@ abstract class Builder
 	}
 	
 	/**
-	 * Retourne la réquête à éxécuter
+	 * Retourne la réquête à exécuter
 	 * @return string
 	 */
 	public function queryCompiled() : string
 	{
-		$query = $this->_query();
-		// echo $query . '<br /><br />';
-		return $query;
+		return $this->_query();
 	}
 	
 	/**

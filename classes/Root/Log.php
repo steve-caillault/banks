@@ -13,25 +13,25 @@ class Log extends Instanciable {
 	/**
 	 * Chemin d'enregistrement des fichiers
 	 */
-	private const DIRECTORY = 'files/logs/';
+	private const DIRECTORY = 'resources/logs/';
 	
 	/**
 	 * Date d'enregistrement
 	 * @var Datetime
 	 */
-	private $_datetime = NULL;
+	private Datetime $_datetime;
 	
 	/**
 	 * URI où le message a été enregistré
 	 * @var string
 	 */
-	private $_uri = NULL;
+	private string $_uri;
 	
 	/**
 	 * Message 
 	 * @var string
 	 */
-	private $_message = NULL;
+	private string $_message;
 	
 	/************************************************************/
 	
@@ -42,8 +42,8 @@ class Log extends Instanciable {
 	protected function __construct(array $params)
 	{
 		$this->_datetime = new DateTime('now', new DateTimeZone('UTC'));
-		$this->_uri = Request::detectUri();
-		$this->_message = Arr::get($params, 'message');
+		$this->_uri = (Request::isCLI()) ? Task::current()->identifier() : Request::detectUri();
+		$this->_message = getArray($params, 'message');
 	}
 	
 	/************************************************************/
@@ -82,7 +82,6 @@ class Log extends Instanciable {
 	private function _save() : bool
 	{
 		$filepath = $this->_filepath();
-		
 		if(! $filepath)
 		{
 			return FALSE;

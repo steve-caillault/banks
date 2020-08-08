@@ -12,19 +12,19 @@ abstract class Controller {
 	 * Méthode à éxécuter
 	 * @var string
 	 */
-	private $_method = NULL;
+	private string $_method;
 	
 	/**
 	 * La requête du contrôleur
 	 * @var Request
 	 */
-	private $_request = NULL;
+	private Request $_request;
 	
 	/**
 	 * Réponse de la méthode principale du contrôleur
-	 * @var mixed
+	 * @var Response
 	 */
-	protected $_response = NULL;
+	protected Response $_response;
 	
 	/********************************************************************************/
 	
@@ -99,10 +99,10 @@ abstract class Controller {
 	
 	/**
 	 * Retourne la réponse du contrôleur
-	 * @param mixed $response Si renseignée, la valeur à effecter 
+	 * @param Response $response Si renseignée, la valeur à affecter 
 	 * @return mixed
 	 */
-	public function response($response = NULL)
+	public function response(?Response $response = NULL)
 	{
 		if($response !== NULL)
 		{

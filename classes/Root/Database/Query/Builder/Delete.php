@@ -14,7 +14,7 @@ class Delete extends Builder {
 	 * Type de requête
 	 * @var string
 	 */
-	protected $_type = self::TYPE_DELETE;
+	protected string $_type = self::TYPE_DELETE;
 	
 	/************************************************************************/
 	
@@ -32,7 +32,7 @@ class Delete extends Builder {
 	 * @param string $table Table où supprimer
 	 * @return Delete
 	 */
-	public static function factory(string $table) : Delete
+	public static function factory(string $table) : self
 	{
 		return new self($table);
 	}

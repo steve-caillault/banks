@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Gestion du HTML des formulaire
+ * Gestion du HTML des formulaires
  */
 
 namespace Root\HTML;
@@ -14,13 +14,14 @@ class FormHTML {
 	 * Retourne une balise label
 	 * @param string $field Nom du chemin du label
 	 * @param string $text Texte du label
+	 * @param array $attributes
 	 * @return string
 	 */
-	public static function label(string $name, string $text) : string
+	public static function label(string $name, string $text, array $attributes = []) : string
 	{
-		$attributes = HTML::attributes([
+		$attributes = HTML::attributes(array_merge([
 			'for' => $name,
-		]);
+		], $attributes));
 		
 		return strtr('<label :attributes>:text</label>', [
 			':attributes' => $attributes,
@@ -61,6 +62,18 @@ class FormHTML {
 	}
 	
 	/**
+	 * Retourne une balise input de type nombre 
+	 * @param string $field Nom du champs
+	 * @param string $value Valeur du champs
+	 * @param array $attributes
+	 * @return string
+	 */
+	public static function number(string $field, ?string $value = NULL, array $attributes = []) : string
+	{
+		return static::input('number', $field, $value, $attributes);
+	}
+	
+	/**
 	 * Retourne une balise textarea
 	 * @param string $field Nom du champs
 	 * @param string $value Valeur du champs
@@ -87,7 +100,7 @@ class FormHTML {
 	 * @param array $attributes
 	 * @return string
 	 */
-	public static function select(string $field, ?string $value = NULL, array $options, array $attributes = []) : string
+	public static function select(string $field, ?string $value = NULL, array $options = [], array $attributes = []) : string
 	{
 		$optionsHTML = '';
 		foreach($options as $optionValue => $optionText)
@@ -122,9 +135,9 @@ class FormHTML {
 	 * @param string $value Valeur du champs
 	 * @return string
 	 */
-	public static function hidden(string $field, ?string $value) : string
+	public static function hidden(string $field, ?string $value, array $attributes = []) : string
 	{
-		return static::input('hidden', $field, $value);
+		return static::input('hidden', $field, $value, $attributes);
 	}
 	
 	/**
@@ -144,7 +157,7 @@ class FormHTML {
 	 * @param array $attributes
 	 * @return string
 	 */
-	public static function submit(string $text, array $attributes = []) : string
+	public static function submit(?string $text, array $attributes = []) : string
 	{
 		return static::input('submit', NULL, $text, $attributes);
 	}

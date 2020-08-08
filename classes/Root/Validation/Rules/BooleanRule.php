@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Vérification qu'une valeur représente une valeur numérique
+ * Vérification qu'une valeur est une valeur booléenne
  */
 
 namespace Root\Validation\Rules;
 
-class NumericRule extends Rule {
+class BooleanRule extends Rule {
 	
 	/**
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected string $_error_message = 'La valeur doit être une valeur numérique.';
+	protected string $_error_message = 'La valeur doit être une valeur booléenne.';
 	
 	/********************************************************************************/
 	
@@ -24,8 +24,9 @@ class NumericRule extends Rule {
 	 */
 	public function check() : bool
 	{
-		$value = $this->_getValue();
-		return is_numeric($value);
+		return is_bool($this->_getValue());
 	}
+	
+	/********************************************************************************/
 	
 }

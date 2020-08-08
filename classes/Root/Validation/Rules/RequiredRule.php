@@ -12,7 +12,7 @@ class RequiredRule extends Rule {
 	 * Message en cas d'erreur
 	 * @var string
 	 */
-	protected $_error_message = 'La valeur ne doit pas être vide.';
+	protected string $_error_message = 'La valeur ne doit pas être vide.';
 	
 	/********************************************************************************/
 	
@@ -24,7 +24,7 @@ class RequiredRule extends Rule {
 	 */
 	public function check() : bool
 	{
-		return ($this->_getValue() != NULL);
+		return ($this->_getValue() === FALSE OR $this->_getValue() != NULL);
 	}
 	
 	/********************************************************************************/

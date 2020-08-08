@@ -15,8 +15,9 @@ class Redirect {
 	 */
 	public static function process(string $path) : void
 	{
-		$url = URL::get($path, TRUE);
+		$url = getURL($path, TRUE);
 		header('Location: ' . $url);
+		exit;
 	}
 	
 }

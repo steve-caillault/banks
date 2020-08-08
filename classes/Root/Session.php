@@ -6,13 +6,7 @@
 
 namespace Root;
 
-class Session {
-	
-	/**
-	 * Instance d'une session
-	 * @var self
-	 */
-	private static $_instance = NULL;
+class Session extends Instanciable {
 	
 	/**
 	 * Données en session
@@ -23,22 +17,9 @@ class Session {
 	/**************************************************************/
 	
 	/**
-	 * Retourne l'instance
-	 * @return self
-	 */
-	public static function instance() : self
-	{
-		if(self::$_instance === NULL)
-		{
-			self::$_instance = new Session;
-		}
-		return self::$_instance;
-	}
-	
-	/**
 	 * Constructeur
 	 */
-	private function __construct()
+	protected function __construct()
 	{
 		session_start();
 		$this->_data = $_SESSION;
@@ -54,7 +35,7 @@ class Session {
 	 */
 	public function retrieve(string $key, $default = NULL)
 	{
-		return Arr::get($this->_data, $key, $default);
+		return getArray($this->_data, $key, $default);
 	}
 	
 	/**

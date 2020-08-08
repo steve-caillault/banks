@@ -9,58 +9,64 @@ namespace Root;
 class Route {
 
 	/**
-	 * Nom / clé unique de la route
+	 * Nom, clé unique de la route
 	 * @var string
 	 */
-	private $_name 	= NULL;
+	private string $_name;
 	
 	/**
 	 * Chemin de la route
 	 * @var string
 	 */
-	private $_uri	= NULL;
+	private string $_uri;
 	
 	/**
 	 * Chemin du contrôleur à affecter à la route
 	 * @var string
 	 */
-	private $_controller = NULL;
+	private string $_controller;
 	
 	/**
 	 * Méthode du contrôleur à appeler
 	 * @var string
 	 */
-	private $_method = NULL;
+	private string $_method ;
 	
 	/**
 	 * Retourne les paramètres de la requête
 	 * @var array
 	 */
-	private $_parameters = NULL;
+	private array $_parameters = [];
 	
 	/**
 	 * Liste des expressions régulières des paramètres dans la route
 	 * @var array
 	 */
-	private $_where	= [];
+	private array $_where = [];
 	
 	/**
 	 * Liste des paramètres par défaut de la route
 	 * @var array
 	 */
-	private $_defaults = [];
+	private array $_defaults = [];
 
 	/**
 	 * Routes affectées
 	 * @var array
 	 */
-	private static $_list = [];
+	private static array $_list = [];
 	
 	/**
 	 * Route de la requête courante
 	 * @var string
 	 */
-	private static $_current = FALSE;
+	private static ?self $_current;
+	
+	/**
+	 * Vrai si la requête courante a été initialisé
+	 * @var bool
+	 */
+	private static bool $_current_initialialized = FALSE;
 	
 	/********************************************************************************/
 	
@@ -72,18 +78,21 @@ class Route {
 	 */
 	private function __construct(array $params)
 	{
-		$this->_name = Arr::get($params, 'name');
-		$this->_uri = Arr::get($params, 'uri');
+		$name = getArray($params, 'name');
+		$uri = getArray($params, 'uri');
 		
-		if($this->_name === NULL)
+		if($name === NULL)
 		{
 			exception('Le nom de la route est nécessaire.');
 		}
 		
-		if($this->_uri === NULL)
+		if($uri === NULL)
 		{
 			exception('Le chemin de la route est obligatoire.');
 		}
+		
+		$this->_name = $name;
+		$this->_uri = $uri;
 	}
 	
 	/********************************************************************************/
@@ -94,13 +103,15 @@ class Route {
 	 */
 	public static function current() : ?self
 	{
-		if(self::$_current === FALSE)
+		if(! self::$_current_initialialized)
 		{
 			self::$_current = NULL;
+			self::$_current_initialialized = TRUE;
 			$currentUri = Request::detectUri();
 			foreach(self::$_list as $route)
 			{
 				$pattern = $route->_patternUri();
+				
 				// La route a été trouvé
 				if(preg_match_all($pattern, $currentUri) == 1)
 				{
@@ -119,48 +130,48 @@ class Route {
 	 */
 	private function _retrieveUriParams() : array
 	{
-		$this->_parameters = [];
+		$this->_parameters = $this->_defaults;
 		
 		$paramsByIndices = [];
-		$paramsByPatterns = [];
+		$segmentsParams = [];
+		$segments = [];
 		
 		$uriWithoutParenthesis = strtr($this->_uri, [
 			'(' => '',
 			')' => '',
 		]);
 		
-		preg_match_all('/[^\/.]+/', trim($uriWithoutParenthesis, '()'), $segments);
-		preg_match_all('/{[^\/.]+}/', $uriWithoutParenthesis, $segmentsParams);
+		preg_match_all('/[^\/]+/', trim($uriWithoutParenthesis, '()'), $segments);
+		preg_match_all('/{[^\/]+}/', $uriWithoutParenthesis, $segmentsParams);
 		
-		foreach(Arr::get($segmentsParams, 0) as $segmentParams)
+		foreach(getArray($segmentsParams, 0) as $segmentParams)
 		{
-			
 			// On détermine la valeurs par défaut du paramètre
 			$keyParam = trim($segmentParams, '{}');
-			$this->_parameters[$keyParam] = Arr::get($this->_defaults, $keyParam);
+			$this->_parameters[$keyParam] = getArray($this->_defaults, $keyParam);
 			// On détermine l'indice du paramètre par rapport au nombre de segment
 			$paramsByIndices[$keyParam] = NULL;
-			foreach(Arr::get($segments, 0) as $indexSegment => $segment)
+			foreach(getArray($segments, 0) as $indexSegment => $segment)
 			{
 				if(preg_match('/' . $segmentParams . '/', $segment) == 1)
 				{
-					$paramsByPatterns[$indexSegment] = $segment;
 					$paramsByIndices[trim($segmentParams, '{}')] = $indexSegment;
 				}
 			}
 		}
 		
 		// Détermine les valeurs des paramètres de l'URI
-		preg_match_all('/[^\/.]+/', Request::detectUri(), $segments);
-		foreach(Arr::get($segments, 0) as $indexSegment => $segment)
+		preg_match_all('/[^\/]+/', Request::detectUri(), $segments);
+		foreach(getArray($segments, 0) as $indexSegment => $segment)
 		{
 			if(in_array($indexSegment, $paramsByIndices))
 			{
 				$keyParam = array_search($indexSegment, $paramsByIndices);
-				$rule = Arr::get($this->_where, $keyParam);
-				if($rule !== NULL AND preg_match('/' . $rule . '/', $segment, $paramMatch) == TRUE)
+				$rule = getArray($this->_where, $keyParam);
+				$paramMatch = [];
+				if($rule !== NULL AND preg_match('/(' . $rule . ')+/', $segment, $paramMatch) == TRUE)
 				{
-					$this->_parameters[$keyParam] = Arr::get($paramMatch, 0, Arr::get($this->_parameters, $keyParam));
+					$this->_parameters[$keyParam] = getArray($paramMatch, 0, getArray($this->_parameters, $keyParam));
 				}
 			}
 		}
@@ -176,6 +187,13 @@ class Route {
 	 */
 	public static function add(string $name, string $uri, string $action) : self
 	{
+		if(array_key_exists($name, self::$_list))
+		{
+			exception(strtr('La route :name existe déjà.', [
+				':name' => $name,
+			]));
+		}
+		
 		$route = new self([
 			'name'	=> $name,
 			'uri'	=> $uri,
@@ -240,7 +258,7 @@ class Route {
 	 */
 	public static function retrieve(string $name) : ?self
 	{
-		return Arr::get(self::$_list, $name);
+		return getArray(self::$_list, $name);
 	}
 	
 	/**
@@ -281,7 +299,7 @@ class Route {
 		// Gestion des segments facultatif
 		$optionalsSegments = [];
 		preg_match_all('/\([^\(\)]+\)/D', $pattern, $optionalsSegments);
-		foreach(Arr::get($optionalsSegments, 0) as $segment)
+		foreach(getArray($optionalsSegments, 0) as $segment)
 		{
 			$pattern = strtr($pattern, [
 				$segment => $segment . '*',
@@ -290,19 +308,19 @@ class Route {
 		
 		// Gestion des paramètres
 		$searchParams = [];
-		preg_match_all('/{[^\/.]+}/', $pattern, $searchParams);
-		foreach(Arr::get($searchParams, 0) as $tag)
+		preg_match_all('/{[^\/]+}/', $pattern, $searchParams);
+		foreach(getArray($searchParams, 0) as $tag)
 		{
 			$paramKey = trim($tag, '{}');
-			if($rule = Arr::get($this->_where, $paramKey))
+			if($rule = getArray($this->_where, $paramKey))
 			{
 				$pattern = strtr($pattern, [
-					$tag => $rule,
+					$tag => '(' . $rule . ')+',
 				]);
 			}
 		}
 		
-		return '/^' . $pattern . '$/D';
+		return '/^(' . $pattern . ')+$/D';
 	}
 	
 	/**
@@ -314,43 +332,18 @@ class Route {
 	{
 		$uri = $this->_uri;
 		$searchParams = [];
-		$searchParamsMatched = [];
+		preg_match_all('/{[^\/]+}/', $uri, $searchParams);
 		
-		$optionalSegmentsMatched = [];
-		$optionalSegments = [];
-		$optionalParams = [];
+		$uriParams = getArray($searchParams, 0, []);
 		
-		// Récupération des paramètres facultatifs
-		preg_match_all('/\([^\(\)]+\)/D', $uri, $optionalSegmentsMatched);
-		$optionalSegments = Arr::get($optionalSegmentsMatched, 0);
-		foreach($optionalSegments as $optionalSegment)
-		{
-			$currentOptionalParamsMatched = [];
-			preg_match_all('/{[^\/.]+}/', $optionalSegment, $currentOptionalParamsMatched);
-			$currentOptionalParams = Arr::get($currentOptionalParamsMatched, 0);
-			foreach($currentOptionalParams as $currentOptionalParam)
-			{
-				if(! in_array($currentOptionalParam, $optionalParams))
-				{
-					$optionalParams[] = $currentOptionalParam;
-				}
-			}
-		}
-		
-		// Récupération des paramètres
-		preg_match_all('/{[^\/.]+}/', $uri, $searchParamsMatched);
-		$uriParams = array_merge_recursive($searchParams, Arr::get($searchParamsMatched, 0, []));
-		
-		// Remplace les paramètres dans l'URI
 		foreach($uriParams as $tag)
 		{
 			$paramKey = trim($tag, '{}');
-			$default = Arr::get($this->_defaults, $paramKey);
-			$paramValue = Arr::get($params, $paramKey, $default);
-			$isOptional = in_array($tag, $optionalParams);
+			$default = getArray($this->_defaults, $paramKey);
+			$paramValue = getArray($params, $paramKey, $default);
 			
 			// Le paramètre est obligatoire mais non renseigné, on déclenche une erreur
-			if($paramValue === NULL AND ! $isOptional)
+			if($paramValue === NULL)
 			{
 				$message = strtr('Le paramètre :param est manquant pour l\'URI :uri.', [
 					':param' => $paramKey,
@@ -364,9 +357,8 @@ class Route {
 			]);
 		}
 		
-		// On supprime les pararenthèses
+		// On supprime les pararenthéses
 		return strtr($uri, [
-			'(/)' => '',
 			'('	=> '',
 			')'	=> '',
 		]);

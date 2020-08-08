@@ -19,10 +19,31 @@ class HTML {
      
         foreach($attributes as $key => $value)
         {
-            $str .= ' ' . $key . '="' . htmlentities($value) . '"';
+        	if($value !== NULL)
+        	{
+            	$str .= ' ' . $key . '="' . htmlentities($value) . '"';
+        	}
         }
         
         return trim($str);
+    }
+    
+    /**
+     * Retourne une balise HTML
+     * @param string $tag Nom de la balise
+     * @param array $attributes Propriété de la balise
+     * @return string
+     */
+    public static function tag(string $tag, array $attributes = []) : string
+    {
+    	$content = getArray($attributes, 'content');
+    	unset($attributes['content']);
+    	
+    	return strtr('<:tag :attributes>:content</:tag>', [
+    		':tag' => $tag,
+    		':attributes' => self::attributes($attributes),
+    		':content' => $content,
+    	]);
     }
     
     /**
@@ -35,7 +56,7 @@ class HTML {
     public static function anchor(string $uri, string $label, array $attributes = []) : string
     {
     	$attributes = static::attributes(array_merge([
-    		'href' => URL::get($uri),
+    		'href' => getURL($uri),
     	], $attributes));
     	
     	
@@ -53,8 +74,13 @@ class HTML {
      */
     public static function image(string $path, array $attributes = []) : string
     {
+    	if(strpos($path, 'data:') != 0)
+    	{
+    		$path = getURL($path);
+    	}
+    	
     	$prepareAttributes = array_merge([
-    		'src' => URL::get($path),
+    		'src' => $path,
     	], $attributes);
     	
     	return strtr('<img :attributes />', [
@@ -71,8 +97,8 @@ class HTML {
     public static function script(string $url, array $options = []) : string
     {
         $attributes = static::attributes(array_merge([
-            'type'  => 'text/javascript',
-            'src'   => URL::get($url),
+            // 'type'  => 'text/javascript',
+        	'src'   => getURL($url),
         ], $options));
         
         return strtr('<script :attributes></script>', [
@@ -89,7 +115,7 @@ class HTML {
     public static function link(string $url, array $options = []) : string
     {
         $attributes = static::attributes(array_merge([
-            'href' => URL::get($url),
+        	'href' => getURL($url),
         ], $options));
         
         return strtr('<link :attributes />', [

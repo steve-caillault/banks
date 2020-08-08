@@ -12,7 +12,7 @@ class URL {
 	 * Racine du site
 	 * @var string
 	 */
-	private static $_root = NULL;
+	private static ?string $_root = NULL;
 	
 	/************************************************************/
 	
@@ -25,7 +25,6 @@ class URL {
 		if(static::$_root === NULL)
 		{
 			$scriptName = $_SERVER['SCRIPT_NAME'];
-			$requestUri = $_SERVER['REQUEST_URI'];
 			static::$_root = substr($scriptName, 0, strpos($scriptName, 'index.php'));
 		}
 		return static::$_root;
@@ -38,7 +37,7 @@ class URL {
 	 */
 	public static function current(bool $absolute = FALSE) : string
 	{
-		$protocol = $_SERVER['REQUEST_SCHEME'];
+		$protocol = Request::protocol();
 		$host = $_SERVER['SERVER_NAME'];
 		$uri = $_SERVER['REQUEST_URI'];
 		
@@ -70,7 +69,7 @@ class URL {
 		
 		if($absolute)
 		{
-			$url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $url;
+			$url = Request::protocol() . '://' . $_SERVER['SERVER_NAME'] . $url;
 		}
 		
 		return $url;
